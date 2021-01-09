@@ -14,11 +14,13 @@ bot = commands.Bot(command_prefix='!')
 AWS_ACCESS_KEY = os.getenv('ACCESS_KEY')
 AWS_SECRET_KEY = os.getenv('SECRET_KEY')
 AWS_PROFILE_NAME = os.getenv('PROFILE_NAME')
+AWS_REGION_NAME = os.getenv('REGION_NAME')
 
 session = boto3.Session(
     aws_access_key_id=AWS_ACCESS_KEY,
     aws_secret_access_key=AWS_SECRET_KEY,
-    profile_name=AWS_PROFILE_NAME
+    profile_name=AWS_PROFILE_NAME,
+    region_name=AWS_REGION_NAME
 )
 
 db_client = session.resource('dynamodb')
@@ -35,7 +37,11 @@ async def ping(ctx):
 # add assignment
 @bot.command(name="add", help="adds an assignment to the database")
 async def add_assignment_command(ctx, assignment_name):
-    body = {"id": random.randint(), "assignment_name": assignment_name}
+
+    body = {
+        "id": random.randint(0, 999),
+        "assignment_name": assignment_name
+    }
 
     table = db_client.Table("CirrusBotMessages")
 
