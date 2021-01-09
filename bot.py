@@ -31,14 +31,13 @@ async def ping(ctx):
     await ctx.send(response)
 
 # add assignment
-@bot.command(name="add")
-async def add_assignment_command(ctx, assignment_name, help="adds an assignment to the database"):
-    info = message.content.split()
+@bot.command(name="add", help="adds an assignment to the database")
+async def add_assignment_command(ctx, assignment_name):
     body = {"id": random.randint(), "assignment_name": assignment_name}
 
     table = db_client.Table("CirrusBotMessages")
 
-    table.put_item =(Item=body)
+    response = table.put_item(Item=body)
 
     await ctx.send(response)
 
