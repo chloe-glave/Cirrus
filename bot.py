@@ -11,19 +11,19 @@ GUILD = os.getenv('DISCORD_GUILD')
 bot = commands.Bot(command_prefix='!')
 
 # AWS Credentials
-AWS_ACCESS_KEY = os.getenv('ACCESS_KEY')
-AWS_SECRET_KEY = os.getenv('SECRET_KEY')
-AWS_PROFILE_NAME = os.getenv('PROFILE_NAME')
-AWS_REGION_NAME = os.getenv('REGION_NAME')
+# AWS_ACCESS_KEY = os.getenv('ACCESS_KEY')
+# AWS_SECRET_KEY = os.getenv('SECRET_KEY')
+# AWS_PROFILE_NAME = os.getenv('PROFILE_NAME')
+# AWS_REGION_NAME = os.getenv('REGION_NAME')
 
-session = boto3.Session(
-    aws_access_key_id=AWS_ACCESS_KEY,
-    aws_secret_access_key=AWS_SECRET_KEY,
-    profile_name=AWS_PROFILE_NAME,
-    region_name=AWS_REGION_NAME
-)
+# session = boto3.Session(
+#     aws_access_key_id=AWS_ACCESS_KEY,
+#     aws_secret_access_key=AWS_SECRET_KEY,
+#     profile_name=AWS_PROFILE_NAME,
+#     region_name=AWS_REGION_NAME
+# )
 
-db_client = session.resource('dynamodb')
+# db_client = session.resource('dynamodb')
 bot = commands.Bot(command_prefix="!")
 
 
