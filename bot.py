@@ -40,4 +40,6 @@ async def add_assignment_command(ctx, assignment_name, help="adds an assignment 
 
     table.put_item =(Item=body)
 
+    await ctx.send(response)
+
 bot.run(TOKEN)
