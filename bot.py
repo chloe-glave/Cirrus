@@ -37,8 +37,8 @@ async def add_assignment_command(ctx, assignment_name):
 
     table = db_client.Table("CirrusBotMessages")
 
-    response = table.put_item(Item=body)
+    db_response = table.put_item(Item=body)
 
-    await ctx.send(response)
+    await ctx.send(db_response)
 
 bot.run(TOKEN)
