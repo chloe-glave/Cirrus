@@ -13,7 +13,7 @@ bot = commands.Bot(command_prefix='!')
 # respond to ping message
 @bot.command(name='ping', help='Responds to ping for testing purposes')
 async def ping(ctx):
-    response = f'pong! {bot.latency}'
+    response = f'Pong! 🏓 Response time: {round(bot.latency, 3)}ms'
     await ctx.send(response)
 
 bot.run(TOKEN)
