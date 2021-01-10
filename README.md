@@ -12,6 +12,19 @@ Link to the demo video: [Cirrus Demo](https://www.youtube.com/watch?v=J--RJCa_BZ
 
 [Devpost submission](https://devpost.com/software/cirrusbot)
 
+## Usage
+Currently implemented commands:
+```
+!add     Adds an assignment to the database
+!clear   Clears ALL assignments from the list
+!delete Delete indicated assignment by ID and assignment name
+!echo   Repeats your message
+!get      Get indicated assignment by ID and assignment name
+!help    Shows the help message
+!list      List all assignments added
+!ping    Responds to ping for testing purposes
+```
+
 ## Contributors 
 
 ### [Chloe Glave](https://github.com/Cragzu)
