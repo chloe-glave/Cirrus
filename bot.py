@@ -1,7 +1,9 @@
 import os
 import boto3
 import random
-import datetime
+from datetime import datetime, timedelta
+import calendar
+
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -47,16 +49,16 @@ async def echo(ctx, message):
 @bot.command(name="add", help="""Adds an assignment to the database
         Params: assignment_name, assignment_body, day, date
 """)
-async def add_assignment_command(ctx, assignment_name, assignment_body, day, date):
-
-    created_time = datetime.datetime.now()
+async def add_assignment_command(ctx, assignment_name, assignment_body, due_month, due_day):
+    created_time = datetime.now()
 
     body = {
         "id": random.randint(0, 1500),
         "assignment_name": assignment_name,
         "assignment_body": assignment_body,
         "date_created": created_time.strftime("%c"),
-        "due_date": f"{day} {date}"
+        "due_month": int(due_month),
+        "due_day": int(due_day)
     }
 
     table = db_client.Table("CirrusBotMessages")
@@ -68,10 +70,9 @@ async def add_assignment_command(ctx, assignment_name, assignment_body, day, dat
 
 @bot.command(name='list', help='List all assignments added')
 async def list_assignments(ctx):
-
     intro_em = discord.Embed(
         title='Your current assignments:',
-        color=0x003cff,
+        color=0x7777dd,  # purple
     )
     await ctx.send(embed=intro_em)
 
@@ -82,8 +83,11 @@ async def list_assignments(ctx):
         em = discord.Embed(
             title=i['assignment_name'],
             description=i['assignment_body'],
-            color=0x00ff00,
-            timestamp=datetime.datetime.strptime(i['date_created'], '%c')
+            color=0x77dd77,  # green
+            timestamp=datetime.strptime(
+                f"{calendar.month_name[int(i['due_month'])]} {int(i['due_day'])} {datetime.now().year}",
+                '%B %d %Y'
+            ) + timedelta(days=1)  # add one cuz it subtracts one for unknown reason
         )
         em.set_footer(text=f"ID: {i['id']}")
 
@@ -92,21 +96,19 @@ async def list_assignments(ctx):
 
 @bot.command(name='delete', help='Delete indicated assignment by ID and assignment name')
 async def delete_assignments(ctx, assignment_id, assignment_name):
-
     table = db_client.Table("CirrusBotMessages")
-    response = table.delete_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name},)    
+    response = table.delete_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name}, )
 
     await ctx.send(response)
 
 
 @bot.command(name='get', help='Delete indicated assignment by ID and assignment name')
 async def delete_assignments(ctx, assignment_id, assignment_name):
-
     table = db_client.Table("CirrusBotMessages")
-    response = table.get_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name},)['Item']    
+    response = table.get_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name}, )['Item']
 
     string = f"ID: {response['id']}\nDate Created: {response['date_created']}\nName: {response['assignment_name']}\n" \
-                 f"Description: {response['assignment_body']}"
+             f"Description: {response['assignment_body']}"
 
     await ctx.send(f'{string}')
 
