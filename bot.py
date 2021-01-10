@@ -1,6 +1,7 @@
 import os
 import boto3
 import random
+
 from datetime import datetime, timedelta
 import calendar
 
@@ -70,28 +71,24 @@ async def add_assignment_command(ctx, assignment_name, assignment_body, due_mont
 
 @bot.command(name='list', help='List all assignments added')
 async def list_assignments(ctx):
-    intro_em = discord.Embed(
-        title='Your current assignments:',
-        color=0x7777dd,  # purple
-    )
-    await ctx.send(embed=intro_em)
 
     table = db_client.Table("CirrusBotMessages")
     response = table.scan()['Items']
 
-    for i in response:
-        em = discord.Embed(
-            title=i['assignment_name'],
-            description=i['assignment_body'],
-            color=0x77dd77,  # green
-            timestamp=datetime.strptime(
-                f"{calendar.month_name[int(i['due_month'])]} {int(i['due_day'])} {datetime.now().year}",
-                '%B %d %Y'
-            ) + timedelta(days=1)  # add one cuz it subtracts one for unknown reason
-        )
-        em.set_footer(text=f"ID: {i['id']}")
+    em = discord.Embed(
+        title='Your current assignments:',
+        color=0x77dd77,  # green
+    )
 
-        await ctx.send(embed=em)
+    for i in response:
+        assignment_description = f"{i['assignment_body']}\n📆 Due: {i['due_month']} {i['due_day']}\nID: {i[id]}"
+
+        em.add_field(
+            name=i['assignment_name'],
+            value=assignment_description
+        )
+
+    await ctx.send(embed=em)
 
 
 @bot.command(name='delete', help='Delete indicated assignment by ID and assignment name')
