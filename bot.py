@@ -2,6 +2,7 @@ import os
 import boto3
 import random
 import datetime
+import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -65,14 +66,25 @@ async def add_assignment_command(ctx, assignment_name, assignment_body):
 @bot.command(name='list', help='List all assignments added')
 async def list_assignments(ctx):
 
+    intro_em = discord.Embed(
+        title='Your current assignments:',
+        color=0x003cff,
+    )
+    await ctx.send(embed=intro_em)
+
     table = db_client.Table("CirrusBotMessages")
     response = table.scan()['Items']
 
     for i in response:
-        string = f"ID: {i['id']}\nDate Created: {i['date_created']}\nName: {i['assignment_name']}\n" \
-                 f"Description: {i['assignment_body']}"
+        em = discord.Embed(
+            title=i['assignment_name'],
+            description=i['assignment_body'],
+            color=0x00ff00,
+            timestamp=datetime.datetime.strptime(i['date_created'], '%c')
+        )
+        em.set_footer(text=f"ID: {i['id']}")
 
-        await ctx.send(f'{string}')
+        await ctx.send(embed=em)
 
 
 @bot.command(name='delete', help='Delete indicated assignment by ID and assignment name')
@@ -82,6 +94,7 @@ async def delete_assignments(ctx, assignment_id, assignment_name):
     response = table.delete_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name},)    
 
     await ctx.send(response)
+
 
 @bot.command(name='get', help='Delete indicated assignment by ID and assignment name')
 async def delete_assignments(ctx, assignment_id, assignment_name):
