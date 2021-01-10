@@ -1,6 +1,7 @@
 import os
 import boto3
 import random
+import datetime
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -43,11 +44,15 @@ async def echo(ctx, message):
 
 # add assignment
 @bot.command(name="add", help="adds an assignment to the database")
-async def add_assignment_command(ctx, assignment_name):
+async def add_assignment_command(ctx, assignment_name, assignment_body):
+
+    created_time = datetime.datetime.now()
 
     body = {
         "id": random.randint(0, 999),
-        "assignment_name": assignment_name
+        "assignment_name": assignment_name,
+        "assignment_body": assignment_body,
+        "date_created": created_time.strftime("%c")
     }
 
     table = db_client.Table("CirrusBotMessages")
