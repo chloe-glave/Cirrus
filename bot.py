@@ -137,6 +137,33 @@ async def clear_assignments(ctx):
     if msg.content == 'y' and msg.channel == ctx.channel:
         await ctx.send(f"ok, deleting... this is {msg.author}'s fault!")
 
+        try:
+            table = db_client.Table("CirrusBotMessages")
+            response = table.scan()['Items']
+        except Exception:
+            raise commands.CommandInvokeError
+        
+        deleted_items = []
+        for i in response:
+            deleted_items.append({
+                'DeleteRequest': {
+                    'Key': {
+                        'id': int(i['id']),
+                        'assignment_name': i['assignment_name']
+                    }
+                }
+            })
+        print(deleted_items)
+
+        try:
+            res = db_client.batch_write_item(RequestItems={
+                'CirrusBotMessages': deleted_items
+            })
+        except Exception:
+            raise commands.CommandInvokeError
+
+        await ctx.send(f"Deletion Successful!")
+
     else:
         await ctx.send(f"Cancelled")
 
