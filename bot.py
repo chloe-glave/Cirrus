@@ -43,8 +43,10 @@ async def echo(ctx, message):
 
 
 # add assignment
-@bot.command(name="add", help="adds an assignment to the database")
-async def add_assignment_command(ctx, assignment_name, assignment_body):
+@bot.command(name="add", help="""Adds an assignment to the database
+        Params: assignment_name, assignment_body, day, date
+""")
+async def add_assignment_command(ctx, assignment_name, assignment_body, day, date):
 
     created_time = datetime.datetime.now()
 
@@ -52,14 +54,15 @@ async def add_assignment_command(ctx, assignment_name, assignment_body):
         "id": random.randint(0, 1500),
         "assignment_name": assignment_name,
         "assignment_body": assignment_body,
-        "date_created": created_time.strftime("%c")
+        "date_created": created_time.strftime("%c"),
+        "due_date": f"{day} {date}"
     }
 
     table = db_client.Table("CirrusBotMessages")
 
-    db_response = table.put_item(Item=body)
+    db_response = table.put_item(Item=body)['HTTPStatusCode']
 
-    await ctx.send(db_response)
+    await ctx.send(f"HTTP Response: {db_response}")
 
 
 @bot.command(name='list', help='List all assignments added')
