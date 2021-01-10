@@ -39,8 +39,11 @@ async def on_command_error(ctx, error):
         if isinstance(error.__cause__, KeyError):
             await ctx.send("Uh oh! Something was wrong with your input! "
                            "Check to see if you're passing in the correct values!")
-        else:
-            await ctx.send("Something went wrong here!")
+        elif isinstance(error.__cause__, ValueError):
+            print(type(error.__cause__))
+            await ctx.send("Command cancelled.")
+    else:
+        await ctx.send("Something went wrong here!")
 
 
 # respond to ping message
@@ -129,9 +132,14 @@ async def delete_assignments(ctx, assignment_id, assignment_name):
 async def clear_assignments(ctx):
     await ctx.send("Are you sure you want to clear all assignments? Type `y` to confirm or anything else to cancel.")
 
-    msg = await bot.wait_for("message")
+    def check(m):
+        if not (m.content == "y" and m.channel == ctx.channel):
+            raise ValueError("Cancelled")
+        else:
+            return True
 
-    if msg.content == 'y' and msg.channel == ctx.channel:
+    msg = await bot.wait_for("message", check=check)
+    try:
         await ctx.send(f"ok, deleting... this is {msg.author}'s fault!")
 
         try:
@@ -139,7 +147,7 @@ async def clear_assignments(ctx):
             response = table.scan()['Items']
         except Exception:
             raise commands.CommandInvokeError
-        
+
         deleted_items = []
         for i in response:
             deleted_items.append({
@@ -153,16 +161,15 @@ async def clear_assignments(ctx):
         print(deleted_items)
 
         try:
-            res = db_client.batch_write_item(RequestItems={
+            db_client.batch_write_item(RequestItems={
                 'CirrusBotMessages': deleted_items
             })
         except Exception:
             raise commands.CommandInvokeError
 
         await ctx.send(f"Deletion Successful!")
-
-    else:
-        await ctx.send(f"Cancelled")
+    except ValueError:
+        raise ValueError
 
 
 # gets an assignment by id and assignment name
