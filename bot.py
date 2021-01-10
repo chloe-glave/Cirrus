@@ -27,6 +27,8 @@ session = boto3.Session(
     region_name=AWS_REGION_NAME
 )
 
+print(session)
+
 db_client = session.resource('dynamodb')
 bot = commands.Bot(command_prefix="!")
 
