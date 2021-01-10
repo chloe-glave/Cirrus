@@ -39,8 +39,11 @@ async def on_command_error(ctx, error):
         if isinstance(error.__cause__, KeyError):
             await ctx.send("Uh oh! Something was wrong with your input! "
                            "Check to see if you're passing in the correct values!")
-        else:
-            await ctx.send("Something went wrong here!")
+        elif isinstance(error.__cause__, ValueError):
+            print(type(error.__cause__))
+            await ctx.send("Command cancelled.")
+    else:
+        await ctx.send("Something went wrong here!")
 
 
 # respond to ping message
@@ -136,6 +139,23 @@ async def clear_assignments(ctx):
 
     else:
         await ctx.send(f"Cancelled")
+
+
+@bot.command(name='test')
+async def greet(ctx):
+    await ctx.send("Say hello!")
+
+    def check(m):
+        if not (m.content == "hello" and m.channel == ctx.channel):
+            raise ValueError("Cancelled")
+        else:
+            return True
+
+    msg = await bot.wait_for("message", check=check)
+    try:
+        await ctx.send(f"Hello {msg.author}!")
+    except ValueError:
+        raise ValueError
 
 
 # gets an assignment by id and assignment name
