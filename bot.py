@@ -81,11 +81,17 @@ async def list_assignments(ctx):
     )
 
     for i in response:
-        assignment_description = f"{i['assignment_body']}\n📆 Due: {i['due_month']} {i['due_day']}\nID: {i[id]}"
+        assignment_description = \
+            f'''
+                `📌 Desc:` {i['assignment_body']}
+                `📆 Due:` {i['due_month']}/{i['due_day']}
+                `🔑 ID:` {i['id']}
+            '''
 
         em.add_field(
             name=i['assignment_name'],
-            value=assignment_description
+            value=assignment_description,
+            inline=False
         )
 
     await ctx.send(embed=em)
