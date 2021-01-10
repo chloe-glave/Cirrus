@@ -29,6 +29,17 @@ session = boto3.Session(
 db_client = session.resource('dynamodb')
 bot = commands.Bot(command_prefix="!")
 
+# error handling
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("Sorry! This function requires more parameters. Run !help <command> to see what parameters are needed")
+    elif isinstance(error, commands.CommandInvokeError):
+        print(type(error.__cause__))
+        if isinstance(error.__cause__, KeyError):
+            await ctx.send("Uh oh! Something was wrong with your input! Check to see if you're passing in the correct values!")
+        else:
+            await ctx.send("Something went wrong here!")
 
 # respond to ping message
 @bot.command(name='ping', help='Responds to ping for testing purposes')
@@ -60,18 +71,21 @@ async def add_assignment_command(ctx, assignment_name, assignment_body, due_mont
         "due_day": int(due_day)
     }
 
-    table = db_client.Table("CirrusBotMessages")
-
-    db_response = table.put_item(Item=body)['ResponseMetadata']['HTTPStatusCode']
-
-    await ctx.send(f"HTTP Response: {db_response}")
+    try:
+        table = db_client.Table("CirrusBotMessages")
+        db_response = table.put_item(Item=body)['ResponseMetadata']['HTTPStatusCode']
+        await ctx.send(f"HTTP Response: {db_response}")
+    except ConnectionAbortedError:
+        raise commands.CommandInvokeError
 
 # lists all assignments
 @bot.command(name='list', help='List all assignments added')
 async def list_assignments(ctx):
-
-    table = db_client.Table("CirrusBotMessages")
-    response = table.scan()['Items']
+    try:
+        table = db_client.Table("CirrusBotMessages")
+        response = table.scan()['Items']
+    except ConnectionAbortedError:
+        raise commands.CommandInvokeError
 
     em = discord.Embed(
         title='Your current assignments:',
@@ -97,16 +111,22 @@ async def list_assignments(ctx):
 # deletes an assignment by id and assignment name
 @bot.command(name='delete', help='Delete indicated assignment by ID and assignment name')
 async def delete_assignments(ctx, assignment_id, assignment_name):
-    table = db_client.Table("CirrusBotMessages")
-    response = table.delete_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name},)['ResponseMetadata']['HTTPStatusCode']
-
-    await ctx.send(f"HTTP Response: {response}")
+    try:
+        table = db_client.Table("CirrusBotMessages")
+        response = table.delete_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name},)['ResponseMetadata']['HTTPStatusCode']
+        await ctx.send(f"HTTP Response: {response}")
+    except ConnectionAbortedError:
+        raise commands.CommandInvokeError
+    
 
 # gets an assignment by id and assignment name
 @bot.command(name='get', help='Get indicated assignment by ID and assignment name')
 async def get_assignments(ctx, assignment_id, assignment_name):
-    table = db_client.Table("CirrusBotMessages")
-    response = table.get_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name}, )['Item']
+    try:
+        table = db_client.Table("CirrusBotMessages")
+        response = table.get_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name}, )['Item']
+    except Exception as e:
+        raise e
 
     em = discord.Embed(
         title=response['assignment_name'],
