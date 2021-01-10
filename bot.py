@@ -128,7 +128,7 @@ async def delete_assignments(ctx, assignment_id, assignment_name):
 
 
 # clear all assignments
-@bot.command(name='clear2', help='Clears ALL assignments from the list')
+@bot.command(name='clear', help='Clears ALL assignments from the list')
 async def clear_assignments(ctx):
     await ctx.send("Are you sure you want to clear all assignments? Type `y` to confirm or anything else to cancel.")
 
