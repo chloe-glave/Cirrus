@@ -63,9 +63,10 @@ async def echo(ctx, message):
     """)
 async def add_assignment_command(ctx, assignment_name, assignment_body, due_month, due_day):
     created_time = datetime.now()
+    assignment_id = random.randint(0, 1500)
 
     body = {
-        "id": random.randint(0, 1500),
+        "id": assignment_id,
         "assignment_name": assignment_name,
         "assignment_body": assignment_body,
         "date_created": created_time.strftime("%c"),
@@ -76,9 +77,20 @@ async def add_assignment_command(ctx, assignment_name, assignment_body, due_mont
     try:
         table = db_client.Table("CirrusBotMessages")
         db_response = table.put_item(Item=body)['ResponseMetadata']['HTTPStatusCode']
-        await ctx.send(f"HTTP Response: {db_response}")
+        print(f"HTTP Response: {db_response}")
     except ConnectionAbortedError:
         raise commands.CommandInvokeError
+
+    # todo: separate file for db manipulation functions
+    try:
+        table = db_client.Table("CirrusBotMessages")
+        response = table.get_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name})['Item']
+    except Exception as e:
+        raise e
+
+    em = create_embed.create_assignment_embed(response, 'Assignment created!', create_embed.PASTEL_YELLOW)
+
+    await ctx.send(embed=em)
 
 
 # lists all assignments
