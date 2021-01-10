@@ -38,7 +38,7 @@ async def ping(ctx):
 # repeat text given
 @bot.command(name='echo', help='Repeats your message')
 async def echo(ctx, message):
-    response = f'You said: {message}'
+    response = f'You said: {message}, echo!'
     await ctx.send(response)
 
 
