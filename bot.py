@@ -34,6 +34,13 @@ async def ping(ctx):
     await ctx.send(response)
 
 
+# repeat text given
+@bot.command(name='echo', help='Repeats your message')
+async def echo(ctx, message):
+    response = f'You said: {message}'
+    await ctx.send(response)
+
+
 # add assignment
 @bot.command(name="add", help="adds an assignment to the database")
 async def add_assignment_command(ctx, assignment_name):
