@@ -12,8 +12,8 @@ GUILD = os.getenv('DISCORD_GUILD')
 bot = commands.Bot(command_prefix='!')
 
 # AWS Credentials
-# AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
-# AWS_SECRET_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_PROFILE_NAME = os.getenv('PROFILE_NAME')
 AWS_REGION_NAME = os.getenv('REGION_NAME')
 
@@ -49,7 +49,7 @@ async def add_assignment_command(ctx, assignment_name, assignment_body):
     created_time = datetime.datetime.now()
 
     body = {
-        "id": random.randint(0, 999),
+        "id": random.randint(0, 1500),
         "assignment_name": assignment_name,
         "assignment_body": assignment_body,
         "date_created": created_time.strftime("%c")
@@ -73,6 +73,26 @@ async def list_assignments(ctx):
                  f"Description: {i['assignment_body']}"
 
         await ctx.send(f'{string}')
+
+
+@bot.command(name='delete', help='Delete indicated assignment by ID and assignment name')
+async def delete_assignments(ctx, assignment_id, assignment_name):
+
+    table = db_client.Table("CirrusBotMessages")
+    response = table.delete_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name},)    
+
+    await ctx.send(response)
+
+@bot.command(name='get', help='Delete indicated assignment by ID and assignment name')
+async def delete_assignments(ctx, assignment_id, assignment_name):
+
+    table = db_client.Table("CirrusBotMessages")
+    response = table.get_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name},)['Item']    
+
+    string = f"ID: {response['id']}\nDate Created: {response['date_created']}\nName: {response['assignment_name']}\n" \
+                 f"Description: {response['assignment_body']}"
+
+    await ctx.send(f'{string}')
 
 
 bot.run(TOKEN)
