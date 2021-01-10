@@ -4,6 +4,7 @@ import random
 
 from datetime import datetime
 
+import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -121,6 +122,20 @@ async def delete_assignments(ctx, assignment_id, assignment_name):
         await ctx.send(f"HTTP Response: {response}")
     except ConnectionAbortedError:
         raise commands.CommandInvokeError
+
+
+# clear all assignments
+@bot.command(name='clear', help='Clears ALL assignments from the list')
+async def clear_assignments(ctx):
+    await ctx.send("Are you sure you want to clear all assignments? Type `y` to confirm or anything else to cancel.")
+
+    msg = await bot.wait_for("message")
+
+    if msg.content == 'y' and msg.channel == ctx.channel:
+        await ctx.send(f"ok, deleting... this is {msg.author}'s fault!")
+
+    else:
+        await ctx.send(f"Cancelled")
 
 
 # gets an assignment by id and assignment name
