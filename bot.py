@@ -1,7 +1,10 @@
 import os
 import boto3
 import random
-import datetime
+from datetime import datetime, timedelta
+import calendar
+
+import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -12,8 +15,8 @@ GUILD = os.getenv('DISCORD_GUILD')
 bot = commands.Bot(command_prefix='!')
 
 # AWS Credentials
-# AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
-# AWS_SECRET_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_PROFILE_NAME = os.getenv('PROFILE_NAME')
 AWS_REGION_NAME = os.getenv('REGION_NAME')
 
@@ -43,22 +46,79 @@ async def echo(ctx, message):
 
 
 # add assignment
-@bot.command(name="add", help="adds an assignment to the database")
-async def add_assignment_command(ctx, assignment_name, assignment_body):
-
-    created_time = datetime.datetime.now()
+@bot.command(name="add", help="""Adds an assignment to the database
+        Params: assignment_name, assignment_body, day, date
+""")
+async def add_assignment_command(ctx, assignment_name, assignment_body, due_month, due_day):
+    created_time = datetime.now()
 
     body = {
-        "id": random.randint(0, 999),
+        "id": random.randint(0, 1500),
         "assignment_name": assignment_name,
         "assignment_body": assignment_body,
-        "date_created": created_time.strftime("%c")
+        "date_created": created_time.strftime("%c"),
+        "due_month": int(due_month),
+        "due_day": int(due_day)
     }
 
     table = db_client.Table("CirrusBotMessages")
 
-    db_response = table.put_item(Item=body)
+    db_response = table.put_item(Item=body)['ResponseMetadata']['HTTPStatusCode']
 
-    await ctx.send(db_response)
+    await ctx.send(f"HTTP Response: {db_response}")
+
+# lists all assignments
+@bot.command(name='list', help='List all assignments added')
+async def list_assignments(ctx):
+    intro_em = discord.Embed(
+        title='Your current assignments:',
+        color=0x7777dd,  # purple
+    )
+    await ctx.send(embed=intro_em)
+
+    table = db_client.Table("CirrusBotMessages")
+    response = table.scan()['Items']
+
+    for i in response:
+        em = discord.Embed(
+            title=i['assignment_name'],
+            description=i['assignment_body'],
+            color=0x77dd77,  # green
+            timestamp=datetime.strptime(
+                f"{calendar.month_name[int(i['due_month'])]} {int(i['due_day'])} {datetime.now().year}",
+                '%B %d %Y'
+            ) + timedelta(days=1)  # add one cuz it subtracts one for unknown reason
+        )
+        em.set_footer(text=f"ID: {i['id']}")
+
+        await ctx.send(embed=em)
+
+# deletes an assignment by id and assignment name
+@bot.command(name='delete', help='Delete indicated assignment by ID and assignment name')
+async def delete_assignments(ctx, assignment_id, assignment_name):
+    table = db_client.Table("CirrusBotMessages")
+    response = table.delete_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name},)['ResponseMetadata']['HTTPStatusCode']
+
+    await ctx.send(f"HTTP Response: {response}")
+
+# gets an assignment by id and assignment name
+@bot.command(name='get', help='Get indicated assignment by ID and assignment name')
+async def get_assignments(ctx, assignment_id, assignment_name):
+    table = db_client.Table("CirrusBotMessages")
+    response = table.get_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name}, )['Item']
+
+    em = discord.Embed(
+        title=response['assignment_name'],
+        description=response['assignment_body'],
+        color=0x77dd77,  # green
+        timestamp=datetime.strptime(
+            f"{calendar.month_name[int(response['due_month'])]} {int(response['due_day'])} {datetime.now().year}",
+            '%B %d %Y'
+        ) + timedelta(days=1)  # add one cuz it subtracts one for unknown reason
+    )
+    em.set_footer(text=f"ID: {response['id']}")
+
+    await ctx.send(embed=em)
+
 
 bot.run(TOKEN)
