@@ -12,8 +12,8 @@ GUILD = os.getenv('DISCORD_GUILD')
 bot = commands.Bot(command_prefix='!')
 
 # AWS Credentials
-AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+# AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
+# AWS_SECRET_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_PROFILE_NAME = os.getenv('PROFILE_NAME')
 AWS_REGION_NAME = os.getenv('REGION_NAME')
 
