@@ -128,13 +128,18 @@ async def delete_assignments(ctx, assignment_id, assignment_name):
 
 
 # clear all assignments
-@bot.command(name='clear', help='Clears ALL assignments from the list')
+@bot.command(name='clear2', help='Clears ALL assignments from the list')
 async def clear_assignments(ctx):
     await ctx.send("Are you sure you want to clear all assignments? Type `y` to confirm or anything else to cancel.")
 
-    msg = await bot.wait_for("message")
+    def check(m):
+        if not (m.content == "y" and m.channel == ctx.channel):
+            raise ValueError("Cancelled")
+        else:
+            return True
 
-    if msg.content == 'y' and msg.channel == ctx.channel:
+    msg = await bot.wait_for("message", check=check)
+    try:
         await ctx.send(f"ok, deleting... this is {msg.author}'s fault!")
 
         try:
@@ -142,7 +147,7 @@ async def clear_assignments(ctx):
             response = table.scan()['Items']
         except Exception:
             raise commands.CommandInvokeError
-        
+
         deleted_items = []
         for i in response:
             deleted_items.append({
@@ -156,31 +161,13 @@ async def clear_assignments(ctx):
         print(deleted_items)
 
         try:
-            res = db_client.batch_write_item(RequestItems={
+            db_client.batch_write_item(RequestItems={
                 'CirrusBotMessages': deleted_items
             })
         except Exception:
             raise commands.CommandInvokeError
 
         await ctx.send(f"Deletion Successful!")
-
-    else:
-        await ctx.send(f"Cancelled")
-
-
-@bot.command(name='test')
-async def greet(ctx):
-    await ctx.send("Say hello!")
-
-    def check(m):
-        if not (m.content == "hello" and m.channel == ctx.channel):
-            raise ValueError("Cancelled")
-        else:
-            return True
-
-    msg = await bot.wait_for("message", check=check)
-    try:
-        await ctx.send(f"Hello {msg.author}!")
     except ValueError:
         raise ValueError
 
