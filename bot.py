@@ -24,15 +24,16 @@ print(AWS_PROFILE_NAME)
 AWS_REGION_NAME = os.getenv('REGION_NAME')
 print(AWS_REGION_NAME)
 
-# session = boto3.Session(
-#     aws_access_key_id=AWS_ACCESS_KEY,
-#     aws_secret_access_key=AWS_SECRET_KEY,
-#     profile_name=AWS_PROFILE_NAME,
-#     region_name=AWS_REGION_NAME
-# )
+session = boto3.Session(
+    aws_access_key_id=AWS_ACCESS_KEY,
+    aws_secret_access_key=AWS_SECRET_KEY,
+    profile_name=AWS_PROFILE_NAME,
+    region_name=AWS_REGION_NAME
+)
 
+print(session)
 
-# db_client = session.resource('dynamodb')
+db_client = session.resource('dynamodb')
 bot = commands.Bot(command_prefix="!")
 
 
