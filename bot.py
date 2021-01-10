@@ -61,7 +61,7 @@ async def add_assignment_command(ctx, assignment_name, assignment_body, day, dat
 
     table = db_client.Table("CirrusBotMessages")
 
-    db_response = table.put_item(Item=body)['HTTPStatusCode']
+    db_response = table.put_item(Item=body)['ResponseMetadata']['HTTPStatusCode']
 
     await ctx.send(f"HTTP Response: {db_response}")
 
