@@ -61,4 +61,18 @@ async def add_assignment_command(ctx, assignment_name, assignment_body):
 
     await ctx.send(db_response)
 
+
+@bot.command(name='list', help='List all assignments added')
+async def list_assignments(ctx):
+
+    table = db_client.Table("CirrusBotMessages")
+    response = table.scan()['Items']
+
+    for i in response:
+        string = f"ID: {i['id']}\nDate Created: {i['date_created']}\nName: {i['assignment_name']}\n" \
+                 f"Description: {i['assignment_body']}"
+
+        await ctx.send(f'{string}')
+
+
 bot.run(TOKEN)
