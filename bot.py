@@ -20,6 +20,7 @@ AWS_REGION_NAME = os.getenv('REGION_NAME')
 session = boto3.Session(
     aws_access_key_id=AWS_ACCESS_KEY,
     aws_secret_access_key=AWS_SECRET_KEY,
+    profile_name=AWS_PROFILE_NAME,
     region_name=AWS_REGION_NAME
 )
 
@@ -36,7 +37,7 @@ async def ping(ctx):
 
 # add assignment
 @bot.command(name="add", help="adds an assignment to the database")
-async def add_assignment_command(ctx, assignment_name, assignment_body, date_created):
+async def add_assignment_command(ctx, assignment_name, assignment_body):
 
     created_time = datetime.datetime.now()
 
@@ -44,7 +45,7 @@ async def add_assignment_command(ctx, assignment_name, assignment_body, date_cre
         "id": random.randint(0, 999),
         "assignment_name": assignment_name,
         "assignment_body": assignment_body,
-        "date_created": created_time.strftime(%c)
+        "date_created": created_time.strftime("%c")
     }
 
     table = db_client.Table("CirrusBotMessages")
