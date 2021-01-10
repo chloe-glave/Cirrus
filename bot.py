@@ -68,7 +68,7 @@ async def add_assignment_command(ctx, assignment_name, assignment_body, due_mont
 
     await ctx.send(f"HTTP Response: {db_response}")
 
-
+# lists all assignments
 @bot.command(name='list', help='List all assignments added')
 async def list_assignments(ctx):
 
@@ -90,24 +90,32 @@ async def list_assignments(ctx):
 
     await ctx.send(embed=em)
 
-
+# deletes an assignment by id and assignment name
 @bot.command(name='delete', help='Delete indicated assignment by ID and assignment name')
 async def delete_assignments(ctx, assignment_id, assignment_name):
     table = db_client.Table("CirrusBotMessages")
-    response = table.delete_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name}, )
+    response = table.delete_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name},)['ResponseMetadata']['HTTPStatusCode']
 
-    await ctx.send(response)
+    await ctx.send(f"HTTP Response: {response}")
 
-
-@bot.command(name='get', help='Delete indicated assignment by ID and assignment name')
-async def delete_assignments(ctx, assignment_id, assignment_name):
+# gets an assignment by id and assignment name
+@bot.command(name='get', help='Get indicated assignment by ID and assignment name')
+async def get_assignments(ctx, assignment_id, assignment_name):
     table = db_client.Table("CirrusBotMessages")
     response = table.get_item(Key={'id': int(assignment_id), 'assignment_name': assignment_name}, )['Item']
 
-    string = f"ID: {response['id']}\nDate Created: {response['date_created']}\nName: {response['assignment_name']}\n" \
-             f"Description: {response['assignment_body']}"
+    em = discord.Embed(
+        title=response['assignment_name'],
+        description=response['assignment_body'],
+        color=0x77dd77,  # green
+        timestamp=datetime.strptime(
+            f"{calendar.month_name[int(response['due_month'])]} {int(response['due_day'])} {datetime.now().year}",
+            '%B %d %Y'
+        ) + timedelta(days=1)  # add one cuz it subtracts one for unknown reason
+    )
+    em.set_footer(text=f"ID: {response['id']}")
 
-    await ctx.send(f'{string}')
+    await ctx.send(embed=em)
 
 
 bot.run(TOKEN)
