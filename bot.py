@@ -28,12 +28,6 @@ db_client = session.resource('dynamodb')
 bot = commands.Bot(command_prefix="!")
 
 
-<<<<<<< HEAD
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("Sorry! This function requires more parameters. Run !help <command> to see what parameters are needed")
-=======
 # error handling
 @bot.event
 async def on_command_error(ctx, error):
@@ -51,7 +45,6 @@ async def on_command_error(ctx, error):
     else:
         await ctx.send("Something went wrong here!")
 
->>>>>>> 7032ba850afd37fc2c186a31b1eca7ce717258d5
 
 # respond to ping message
 @bot.command(name='ping', help='Responds to ping for testing purposes')
