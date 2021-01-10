@@ -29,6 +29,11 @@ db_client = session.resource('dynamodb')
 bot = commands.Bot(command_prefix="!")
 
 
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("Sorry! This function requires more parameters. Run !help <command> to see what parameters are needed")
+
 # respond to ping message
 @bot.command(name='ping', help='Responds to ping for testing purposes')
 async def ping(ctx):
@@ -48,6 +53,7 @@ async def echo(ctx, message):
         Params: assignment_name, assignment_body, day, date
 """)
 async def add_assignment_command(ctx, assignment_name, assignment_body, due_month, due_day):
+        
     created_time = datetime.now()
 
     body = {
